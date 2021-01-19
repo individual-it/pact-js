@@ -4,6 +4,7 @@ const chaiAsPromised = require("chai-as-promised")
 chai.use(chaiAsPromised)
 const { server, importData, animalRepository } = require("../provider.js")
 const path = require("path")
+const fetch = require('node-fetch');
 
 server.listen(8081, () => {
   console.log("Animal Profile Service listening on http://localhost:8081")
@@ -49,11 +50,34 @@ describe("Pact Verification", () => {
         },
         "Has an animal with ID": (setup, parameters) => {
           if (setup) {
-            importData()
-            animalRepository.first().id = parameters.id
-            return Promise.resolve({
-              description: `Animal with ID ${parameters.id} added to the db`,
+            let data = {
               id: parameters.id,
+              "first_name": "Billy",
+              "last_name": "Goat",
+              "animal": "goat",
+              "age": 21,
+              "available_from": "2017-12-04T14:47:18.582Z",
+              "gender": "M",
+              "location": {
+                "description": "Melbourne Zoo",
+                "country": "Australia",
+                "post_code": 3000
+              },
+              "eligibility": {
+                "available": true,
+                "previously_married": false
+              },
+              "interests": [
+                "walks in the garden/meadow",
+                "munching on a paddock bomb",
+                "parkour"
+              ]
+            }
+
+            return fetch('http://localhost:8081/animals', {
+              method: 'POST',
+              body: JSON.stringify(data),
+              headers: {'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }
             })
           }
         },
@@ -70,9 +94,9 @@ describe("Pact Verification", () => {
       },
 
       // Fetch pacts from broker
-      pactBrokerUrl: process.env.CI
-        ? "http://localhost:9292"
-        : "https://test.pact.dius.com.au",
+      // pactBrokerUrl: process.env.CI
+      //   ? "http://localhost:9292"
+      //   : "https://test.pact.dius.com.au",
 
       // Fetch from broker with given tags
       consumerVersionTags: ["prod"],
@@ -82,12 +106,12 @@ describe("Pact Verification", () => {
       // Specific Remote pacts (doesn't need to be a broker)
       // pactUrls: ['https://test.pact.dius.com.au/pacts/provider/Animal%20Profile%20Service/consumer/Matching%20Service/latest'],
       // Local pacts
-      // pactUrls: [
-      //   path.resolve(
-      //     process.cwd(),
-      //     "./pacts/Matching Service V3-Animal Profile Service V3.json"
-      //   ),
-      // ],
+      pactUrls: [
+        path.resolve(
+          process.cwd(),
+          "./pacts/Matching Service V3-Animal Profile Service V3.json"
+        ),
+      ],
 
       pactBrokerUsername: "dXfltyFMgNOFZAxr8io9wJ37iUpY42M",
       pactBrokerPassword: "O5AIZWxelWbLvqMd8PkAVycBJh2Psyg1",
