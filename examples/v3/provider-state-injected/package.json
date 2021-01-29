@@ -6,7 +6,7 @@
   "scripts": {
     "test": "npm run test:consumer && npm run test:provider",
     "test:consumer": "jest consumer/*.test.js",
-    "test:provider": "jest -i --detectOpenHandles --forceExit provider/*.test.js"
+    "test:provider": "jest -i --detectOpenHandles --forceExit p/*.test.js"
   },
   "author": "",
   "license": "ISC",
